@@ -1,0 +1,9 @@
+target
+result
+
+# Devenv
+.devenv*
+devenv.local.nix
+
+# direnv
+.direnv
