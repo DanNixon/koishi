@@ -10,5 +10,8 @@
 
     # Rust dependency linting
     cargo-deny
+
+    # Release tools
+    release-plz
   ];
 }
