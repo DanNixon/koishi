@@ -304,8 +304,20 @@ impl<'a> Record<'a> {
 fn format_selector(selector: Option<&str>) -> Option<String> {
     selector.map(|s| {
         if s.contains('[') || s.contains(']') {
-            // If the string contains brackets, assume it's a JSON path or similar
+            // If the string contains brackets, assume it's an already formatted selector
             s.to_string()
+        } else if s.contains('/') {
+            // With slashes, create a string path selector
+            s.split('/')
+                .flat_map(|part| {
+                    if part.is_empty() {
+                        None
+                    } else {
+                        Some(format!("[\"{}\"]", part))
+                    }
+                })
+                .collect::<Vec<_>>()
+                .join("")
         } else {
             // Otherwise, treat it as a simple key
             format!("[\"{s}\"]")
@@ -320,7 +332,7 @@ mod tests {
     use tempfile::tempdir;
 
     #[test]
-    fn test_create_and_get_record() {
+    fn create_and_get_record() {
         let dir = tempdir().unwrap();
         let store_path = dir.path().join("store");
 
@@ -345,7 +357,7 @@ mod tests {
     }
 
     #[test]
-    fn test_list_records() {
+    fn list_records() {
         let dir = tempdir().unwrap();
         let store_path = dir.path().join("store");
 
@@ -375,7 +387,7 @@ mod tests {
     }
 
     #[test]
-    fn test_get_record_unchecked() {
+    fn get_record_unchecked() {
         let dir = tempdir().unwrap();
         let store_path = dir.path().join("store");
 
@@ -391,9 +403,36 @@ mod tests {
     }
 
     #[test]
-    fn test_format_selector() {
-        assert_eq!(format_selector(Some("foo")), Some("[\"foo\"]".to_string()));
-        assert_eq!(format_selector(Some("foo[0]")), Some("foo[0]".to_string()));
+    fn format_selector_none() {
         assert_eq!(format_selector(None), None);
+    }
+
+    #[test]
+    fn format_selector_basic() {
+        assert_eq!(format_selector(Some("foo")), Some("[\"foo\"]".to_string()));
+    }
+
+    #[test]
+    fn format_selector_selector() {
+        assert_eq!(
+            format_selector(Some("[\"foo\"][\"bar\"]")),
+            Some("[\"foo\"][\"bar\"]".to_string())
+        );
+    }
+
+    #[test]
+    fn format_selector_slashes_1() {
+        assert_eq!(
+            format_selector(Some("foo/bar")),
+            Some("[\"foo\"][\"bar\"]".to_string())
+        );
+    }
+
+    #[test]
+    fn format_selector_slashes_2() {
+        assert_eq!(
+            format_selector(Some("/foo//bar/")),
+            Some("[\"foo\"][\"bar\"]".to_string())
+        );
     }
 }

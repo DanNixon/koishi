@@ -10,6 +10,7 @@ use std::{
 ///
 /// If no selector is given then the entire record is returned.
 /// If a simple string is given then the corresponding attribute under the top level is returned.
+/// If a path of string keys delimited by forward slashes (/) then a path selector is built from this.
 /// Otherwise the selector is assumed to be a path specifier, as per `sops decrypt --extract`
 #[derive(Debug, Parser)]
 pub(super) struct Command {
