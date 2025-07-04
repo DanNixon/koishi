@@ -14,8 +14,10 @@ mod sops;
 mod update_keys;
 
 use super::Run;
+use crate::secret_store::Store;
 use clap::Subcommand;
-use std::path::Path;
+use clap_complete::CompletionCandidate;
+use std::{ffi::OsStr, path::Path};
 
 #[allow(private_interfaces)]
 #[derive(Debug, Subcommand)]
@@ -64,4 +66,22 @@ impl Run for Command {
             Command::Sops(cmd) => cmd.run(store_path),
         }
     }
+}
+
+fn complete_secret(current: &OsStr) -> Vec<CompletionCandidate> {
+    let records = match shellexpand::path::full(super::DEFAULT_STORE_LOCATION) {
+        Ok(store_path) => match Store::open(&store_path) {
+            Ok(store) => store.list_records(None).unwrap_or(Vec::default()),
+            Err(_) => Vec::default(),
+        },
+        Err(_) => Vec::default(),
+    };
+
+    let current = current.to_str().unwrap_or("");
+
+    records
+        .into_iter()
+        .filter(|s| s.display().to_string().starts_with(current))
+        .map(CompletionCandidate::new)
+        .collect()
 }

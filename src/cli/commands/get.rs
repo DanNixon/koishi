@@ -1,5 +1,6 @@
 use crate::{cli::Run, secret_store::Store};
 use clap::Parser;
+use clap_complete::ArgValueCompleter;
 use miette::IntoDiagnostic;
 use std::{
     io::Write,
@@ -31,6 +32,7 @@ pub(super) struct Command {
     qr_unicode: bool,
 
     /// Path to a record
+    #[arg(add = ArgValueCompleter::new(super::complete_secret))]
     path: PathBuf,
 
     /// Part of the record to get

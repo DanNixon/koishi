@@ -3,15 +3,18 @@ use crate::{
     secret_store::{Store, StoreLocation},
 };
 use clap::Parser;
+use clap_complete::ArgValueCompleter;
 use std::path::{Path, PathBuf};
 
 /// Moves/renames a record.
 #[derive(Debug, Parser)]
 pub(super) struct Command {
     /// Path to the source record
+    #[arg(add = ArgValueCompleter::new(super::complete_secret))]
     source: PathBuf,
 
     /// Path to move the record to
+    #[arg(add = ArgValueCompleter::new(super::complete_secret))]
     destination: PathBuf,
 }
 

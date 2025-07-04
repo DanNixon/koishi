@@ -1,9 +1,12 @@
 mod commands;
 
-use clap::Parser;
+use clap::{CommandFactory, Parser};
+use clap_complete::CompleteEnv;
 use commands::Command;
 use miette::{Context, IntoDiagnostic};
 use std::path::{Path, PathBuf};
+
+const DEFAULT_STORE_LOCATION: &str = "$XDG_DATA_HOME/koishi-store";
 
 trait Run {
     fn run(&self, store_path: &Path) -> miette::Result<()>;
@@ -11,13 +14,13 @@ trait Run {
 
 /// Koishi: the keeper of important secrets, hierarchically indexed.
 #[derive(Debug, Parser)]
-#[command(author, version = self::version(), about, long_about = None)]
+#[command(name = "koishi", author, version = self::version(), about, long_about = None)]
 struct Cli {
     #[arg(
         long = "store",
         short = 's',
         env = "KOISHI_STORE",
-        default_value = "$XDG_DATA_HOME/koishi-store"
+        default_value = DEFAULT_STORE_LOCATION,
     )]
     store_path: PathBuf,
 
@@ -26,6 +29,7 @@ struct Cli {
 }
 
 pub(super) fn main() -> miette::Result<()> {
+    CompleteEnv::with_factory(Cli::command).complete();
     let cli = Cli::parse();
 
     let store_path = shellexpand::path::full(&cli.store_path)
