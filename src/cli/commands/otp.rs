@@ -1,5 +1,6 @@
 use crate::{cli::Run, secret_store::Store};
 use clap::Parser;
+use clap_complete::ArgValueCompleter;
 use std::path::{Path, PathBuf};
 
 /// Generate TOTP codes from records.
@@ -10,6 +11,7 @@ pub(super) struct Command {
     otp_selector: String,
 
     /// Path to a record
+    #[arg(add = ArgValueCompleter::new(super::complete_secret))]
     path: PathBuf,
 }
 

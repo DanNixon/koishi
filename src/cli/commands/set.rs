@@ -1,5 +1,6 @@
 use crate::{cli::Run, secret_store::Store};
 use clap::Parser;
+use clap_complete::ArgValueCompleter;
 use miette::IntoDiagnostic;
 use std::{
     io::{IsTerminal, Read},
@@ -11,6 +12,7 @@ use zeroize::Zeroizing;
 #[derive(Debug, Parser)]
 pub(super) struct Command {
     /// Path to a record
+    #[arg(add = ArgValueCompleter::new(super::complete_secret))]
     path: PathBuf,
 
     /// Part of the record to set

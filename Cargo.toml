@@ -14,6 +14,7 @@ path = "./src/main.rs"
 
 [dependencies]
 clap = { version = "4.5.39", features = ["cargo", "derive", "env", "string"] }
+clap_complete = { version = "4.5.54", features = ["unstable-dynamic"] }
 gix = "0.72.1"
 image = { version = "0.25.6", default-features = false, features = ["png"] }
 inquire = { version = "0.7.5", default-features = false, features = ["crossterm"] }
