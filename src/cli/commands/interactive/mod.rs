@@ -5,6 +5,7 @@ use crate::{
     secret_store::{Record, Store},
 };
 use clap::Parser;
+use inquire::{InquireError, Text};
 use miette::IntoDiagnostic;
 use skim::{SkimItem, SkimItemReceiver, SkimItemSender};
 use std::{borrow::Cow, sync::Arc};
@@ -14,6 +15,7 @@ use std::{
 };
 use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
+use zeroize::Zeroizing;
 
 /// Query the store interactively.
 #[derive(Debug, Parser)]
@@ -79,6 +81,11 @@ fn do_query(record: &Record, attribute: String, lookup: LookupMode) -> miette::R
             println!();
             true
         }
+        LookupMode::Characters => {
+            let secret = crate::utils::bytes_to_string(secret)?;
+            lookup_chars_from_secret(secret)?;
+            false
+        }
     };
 
     if wait_for_user_ready {
@@ -140,15 +147,51 @@ enum LookupMode {
     QrCodeUnicode,
     QrCodeAscii,
     Get,
+    Characters,
 }
 
 impl SkimItem for LookupMode {
     fn text(&self) -> Cow<str> {
         Cow::Borrowed(match self {
-            LookupMode::Copy => "Copy to clipboard",
-            LookupMode::QrCodeUnicode => "Generate Unicode QR code",
-            LookupMode::QrCodeAscii => "Generate ASCII QR code",
-            LookupMode::Get => "Get and output to termainl",
+            Self::Copy => "Copy to clipboard",
+            Self::QrCodeUnicode => "Generate Unicode QR code",
+            Self::QrCodeAscii => "Generate ASCII QR code",
+            Self::Get => "Get and output to termainl",
+            Self::Characters => "Choose specific characters from a string and output to terminal",
         })
+    }
+}
+
+fn lookup_chars_from_secret(secret: Zeroizing<String>) -> miette::Result<()> {
+    loop {
+        let prompt = Text::new("Position of character to get:").prompt();
+
+        let idx = match prompt {
+            Ok(s) => s
+                .trim()
+                .parse::<usize>()
+                .into_diagnostic()?
+                .checked_sub(1)
+                .ok_or(miette::miette!(
+                    "Position must be a positive integer greater than 0"
+                ))?,
+            Err(InquireError::OperationCanceled) => return Ok(()),
+            Err(e) => {
+                return Err(e).into_diagnostic();
+            }
+        };
+
+        match secret.get(idx..idx + 1) {
+            Some(ss) => {
+                println!("Character at index {}: {}", idx, ss);
+            }
+            None => {
+                return Err(miette::miette!(
+                    "Index {} is out of bounds for the secret string of length {}",
+                    idx,
+                    secret.len()
+                ));
+            }
+        }
     }
 }
