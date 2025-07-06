@@ -256,43 +256,69 @@ impl<'a> Record<'a> {
         )
     }
 
-    /// Return a list of top level keys from this record.
+    /// Return a list of all paths that lead to values.
     ///
-    /// Only returns keys that have string values.
     /// Will only give results for files that are valid YAML or JSON encoded SOPS files.
-    pub(crate) fn list_top_level_attributes(&self) -> miette::Result<Vec<String>> {
+    pub(crate) fn list_attributes(&self) -> miette::Result<Vec<String>> {
         let content = std::fs::read_to_string(self.location.filename()).into_diagnostic()?;
+
+        fn handle_json_object(object: &serde_json::Map<String, serde_json::Value>) -> Vec<String> {
+            object
+                .iter()
+                .flat_map(|(k, v)| {
+                    // Ignore the SOPS internal data
+                    if k == "sops" {
+                        vec![]
+                    } else if v.is_string() {
+                        vec![k.to_owned()]
+                    } else if v.is_object() {
+                        handle_json_object(v.as_object().unwrap())
+                            .iter()
+                            .map(|i| format!("{k}/{i}"))
+                            .collect()
+                    } else {
+                        vec![]
+                    }
+                })
+                .collect()
+        }
 
         // Try to parse the encrypted SOPS file as JSON
         if let Ok(serde_json::Value::Object(map)) =
             serde_json::from_str::<serde_json::Value>(&content)
         {
-            return Ok(map
+            return Ok(handle_json_object(&map));
+        }
+
+        fn handle_yaml_mapping(mapping: &saphyr::Mapping<'_>) -> Vec<String> {
+            mapping
                 .iter()
                 .flat_map(|(k, v)| {
-                    if v.is_string() {
-                        Some(k.to_owned())
+                    let k = k.as_str().unwrap();
+
+                    // Ignore the SOPS internal data
+                    if k == "sops" {
+                        vec![]
+                    } else if v.is_string() {
+                        vec![k.to_owned()]
+                    } else if v.is_mapping() {
+                        handle_yaml_mapping(v.as_mapping().unwrap())
+                            .iter()
+                            .map(|i| format!("{k}/{i}"))
+                            .collect()
                     } else {
-                        None
+                        vec![]
                     }
                 })
-                .collect());
+                .collect()
         }
 
         // Try to parse the encrypted SOPS file as YAML
         if let Ok(yaml) = saphyr::Yaml::load_from_str(&content) {
+            // Assuming that the file has a single YAML document
             if let Some(yaml) = yaml.first() {
-                if let Some(mapping) = yaml.as_mapping() {
-                    return Ok(mapping
-                        .iter()
-                        .flat_map(|(k, v)| {
-                            if v.is_string() {
-                                Some(k.as_str().unwrap().to_owned())
-                            } else {
-                                None
-                            }
-                        })
-                        .collect());
+                if let Some(map) = yaml.as_mapping() {
+                    return Ok(handle_yaml_mapping(map));
                 }
             }
         }

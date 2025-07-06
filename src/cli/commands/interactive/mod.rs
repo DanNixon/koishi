@@ -27,7 +27,7 @@ impl Run for Command {
 
         if let Some(record) = pick_record(&records)? {
             let record = store.get_record(&record)?;
-            let attributes = record.list_top_level_attributes()?;
+            let attributes = record.list_attributes()?;
 
             'interactive_selection: loop {
                 let attribute = match pick_attribute(attributes.clone())? {
