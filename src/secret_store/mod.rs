@@ -62,6 +62,10 @@ impl Store {
         &self.root
     }
 
+    pub(crate) fn location(&self, path: &Path) -> StoreLocation {
+        StoreLocation::from_path(&self.root, path)
+    }
+
     /// Opens the SOPS config file in EDITOR for interactive editing, committing the changes after
     /// the editor is closed.
     pub(crate) fn edit_config_interactive(&self) -> miette::Result<bool> {

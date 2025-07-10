@@ -1,7 +1,4 @@
-use crate::{
-    cli::Run,
-    secret_store::{Store, StoreLocation},
-};
+use crate::{cli::Run, secret_store::Store};
 use clap::Parser;
 use clap_complete::ArgValueCompleter;
 use std::path::{Path, PathBuf};
@@ -24,7 +21,7 @@ impl Run for Command {
 
         let mut record = store.get_record(&self.source)?;
 
-        let destination = StoreLocation::from_path(store.root(), &self.destination);
+        let destination = store.location(&self.destination);
 
         record.move_to(destination)?;
 
