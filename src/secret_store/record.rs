@@ -17,7 +17,7 @@ impl Store {
     /// does not write anything to disk.
     /// Writing must be performed using the returned `Record`.
     pub(crate) fn create_record(&self, path: &Path) -> miette::Result<Record> {
-        let location = StoreLocation::from_path(&self.root, path);
+        let location = self.location(path);
 
         if location.exists() {
             return Err(miette!(
@@ -79,7 +79,7 @@ impl Store {
 
     /// Get a record given a path in the store.
     pub(crate) fn get_record(&self, path: &Path) -> miette::Result<Record> {
-        let exact_location = StoreLocation::from_path(&self.root, path);
+        let exact_location = self.location(path);
 
         if exact_location.exists() {
             Ok(Record {
@@ -98,7 +98,7 @@ impl Store {
     /// Will not fail if the path in the store does not exist.
     /// Instead a `Record` will be returned that simply does not exist.
     pub(crate) fn get_record_unchecked(&self, path: &Path) -> miette::Result<Record> {
-        let exact_location = StoreLocation::from_path(&self.root, path);
+        let exact_location = self.location(path);
 
         Ok(Record {
             location: exact_location,
