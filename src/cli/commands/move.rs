@@ -3,14 +3,14 @@ use clap::Parser;
 use clap_complete::ArgValueCompleter;
 use std::path::{Path, PathBuf};
 
-/// Moves/renames a record.
+/// Moves/renames a directory or record.
 #[derive(Debug, Parser)]
 pub(super) struct Command {
-    /// Path to the source record
+    /// Path to the source directory/record
     #[arg(add = ArgValueCompleter::new(super::complete_secret))]
     source: PathBuf,
 
-    /// Path to move the record to
+    /// Path to move the directory/record to
     #[arg(add = ArgValueCompleter::new(super::complete_secret))]
     destination: PathBuf,
 }
@@ -19,11 +19,10 @@ impl Run for Command {
     fn run(&self, store_path: &Path) -> miette::Result<()> {
         let store = Store::open(store_path)?;
 
-        let mut record = store.get_record(&self.source)?;
-
+        let source = store.location(&self.source);
         let destination = store.location(&self.destination);
 
-        record.move_to(destination)?;
+        source.move_to(destination)?;
 
         Ok(())
     }
