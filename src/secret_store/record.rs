@@ -127,53 +127,6 @@ impl<'a> Record<'a> {
         )? == GitOperationResult::Commit)
     }
 
-    /// Moves/renames this record.
-    pub(crate) fn move_to(&mut self, destination: StoreLocation<'a>) -> miette::Result<()> {
-        // Ensure that the destination is in the same store
-        if self.location.root != destination.root {
-            return Err(miette!(
-                "Cannot move record to a different store: {}",
-                destination.root.display()
-            ));
-        }
-
-        // Ensure that the destination does not already exist
-        if destination.exists() {
-            return Err(miette!(
-                "Destination `{}` already exists",
-                destination.store_filename().display()
-            ));
-        }
-
-        // Ensure directories for destination exist
-        destination.create_directories()?;
-
-        // Move the record file
-        let _ = crate::utils::git::git_operation(
-            self.location.root,
-            &format!(
-                "Move record `{}` => `{}`",
-                self.location.store_filename().display(),
-                destination.store_filename().display()
-            ),
-            || {
-                std::fs::rename(self.location.filename(), destination.filename())
-                    .into_diagnostic()
-                    .wrap_err_with(|| {
-                        format!(
-                            "Failed to move record `{}` => `{}`",
-                            self.location.store_filename().display(),
-                            destination.store_filename().display()
-                        )
-                    })
-            },
-        )?;
-
-        self.location = destination;
-
-        Ok(())
-    }
-
     /// Deletes this record from the store, committing changes.
     pub(crate) fn delete(&self) -> miette::Result<()> {
         let _ = crate::utils::git::git_operation(

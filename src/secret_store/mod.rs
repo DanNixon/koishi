@@ -153,6 +153,51 @@ impl<'a> StoreLocation<'a> {
     pub(crate) fn exists(&self) -> bool {
         self.filename().is_file()
     }
+
+    /// Moves/renames this directory/record, committing changes.
+    pub(crate) fn move_to(self, destination: StoreLocation<'a>) -> miette::Result<()> {
+        // Ensure that the destination is in the same store
+        if self.root != destination.root {
+            return Err(miette!(
+                "Cannot move record to a different store: {}",
+                destination.root.display()
+            ));
+        }
+
+        // Ensure that the destination does not already exist
+        if destination.filename().exists() {
+            return Err(miette!(
+                "Destination `{}` already exists",
+                destination.store_filename().display()
+            ));
+        }
+
+        // Ensure directories for destination exist
+        destination.create_directories()?;
+
+        // Move the directory/record
+        let _ = crate::utils::git::git_operation(
+            self.root,
+            &format!(
+                "Move `{}` => `{}`",
+                self.store_filename().display(),
+                destination.store_filename().display()
+            ),
+            || {
+                std::fs::rename(self.filename(), destination.filename())
+                    .into_diagnostic()
+                    .wrap_err_with(|| {
+                        format!(
+                            "Failed to move `{}` => `{}`",
+                            self.store_filename().display(),
+                            destination.store_filename().display()
+                        )
+                    })
+            },
+        )?;
+
+        Ok(())
+    }
 }
 
 #[cfg(test)]
