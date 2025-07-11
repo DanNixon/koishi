@@ -60,21 +60,3 @@ fn read_secret() -> miette::Result<Zeroizing<Vec<u8>>> {
         Ok(buff)
     }
 }
-
-// koishi record set path/to/a/secret.ext somekey
-//  (fails if secret not found)
-//  (prompts for string, asks for confirmation)
-//  (updates a key in a structured file)
-//
-// koishi record set path/to/a/secret.ext '["somekey"][0]'
-//  (fails if secret not found)
-//  (prompts for string, asks for confirmation)
-//  (updates a complex path in a structured file)
-//
-// echo "secret" | koishi record set path/to/a/secret.ext somekey
-//  (fails if secret not found)
-//  (updates a key in a structured file)
-//
-// echo "secret" | koishi record set path/to/a/secret.ext '["somekey"][0]'
-//  (fails if secret not found)
-//  (updates a complex path in a structured file)
