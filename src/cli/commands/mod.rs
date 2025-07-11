@@ -68,7 +68,12 @@ impl Run for Command {
     }
 }
 
-fn complete_secret(current: &OsStr) -> Vec<CompletionCandidate> {
+fn complete_location(current: &OsStr) -> Vec<CompletionCandidate> {
+    // TODO
+    complete_record(current)
+}
+
+fn complete_record(current: &OsStr) -> Vec<CompletionCandidate> {
     let records = match shellexpand::path::full(super::DEFAULT_STORE_LOCATION) {
         Ok(store_path) => match Store::open(&store_path) {
             Ok(store) => store.list_records(None).unwrap_or(Vec::default()),
