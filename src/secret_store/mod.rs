@@ -198,6 +198,29 @@ impl<'a> StoreLocation<'a> {
 
         Ok(())
     }
+
+    /// Deletes this directory/record from the store, committing changes.
+    pub(crate) fn delete(&self) -> miette::Result<()> {
+        let _ = crate::utils::git::git_operation(
+            self.root,
+            &format!("Delete `{}`", self.store_filename().display()),
+            || {
+                let remove_result = if self.filename().is_file() {
+                    std::fs::remove_file(self.filename()).into_diagnostic()
+                } else if self.filename().is_dir() {
+                    std::fs::remove_dir_all(self.filename()).into_diagnostic()
+                } else {
+                    Err(miette!("No such file or directory"))
+                };
+
+                remove_result.wrap_err_with(|| {
+                    format!("Failed to delete `{}`", self.store_filename().display())
+                })
+            },
+        )?;
+
+        Ok(())
+    }
 }
 
 #[cfg(test)]

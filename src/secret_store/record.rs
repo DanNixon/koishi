@@ -1,7 +1,7 @@
 use crate::utils::git::GitOperationResult;
 
 use super::{Store, StoreLocation};
-use miette::{Context, IntoDiagnostic, miette};
+use miette::{IntoDiagnostic, miette};
 use saphyr::LoadableYamlNode;
 use std::{
     cmp::Ordering,
@@ -125,29 +125,6 @@ impl<'a> Record<'a> {
             &format!("Edit record `{}`", self.location.store_filename().display()),
             || crate::utils::sops::edit(self.location.root, &self.location.filename()),
         )? == GitOperationResult::Commit)
-    }
-
-    /// Deletes this record from the store, committing changes.
-    pub(crate) fn delete(&self) -> miette::Result<()> {
-        let _ = crate::utils::git::git_operation(
-            self.location.root,
-            &format!(
-                "Delete record `{}`",
-                self.location.store_filename().display()
-            ),
-            || {
-                std::fs::remove_file(self.location.filename())
-                    .into_diagnostic()
-                    .wrap_err_with(|| {
-                        format!(
-                            "Failed to delete record `{}`",
-                            self.location.store_filename().display()
-                        )
-                    })
-            },
-        )?;
-
-        Ok(())
     }
 
     pub(crate) fn encrypt_entire_file(&self, contents: Zeroizing<Vec<u8>>) -> miette::Result<()> {
