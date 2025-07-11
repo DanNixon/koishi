@@ -3,11 +3,8 @@ use crate::utils::git::GitOperationResult;
 use super::{Store, StoreLocation};
 use miette::{IntoDiagnostic, miette};
 use saphyr::LoadableYamlNode;
-use std::{
-    cmp::Ordering,
-    path::{Path, PathBuf},
-};
-use walkdir::{DirEntry, WalkDir};
+use std::path::{Path, PathBuf};
+use walkdir::WalkDir;
 use zeroize::Zeroizing;
 
 impl Store {
@@ -42,33 +39,36 @@ impl Store {
             None => self.root.to_owned(),
         };
 
-        fn is_hidden(entry: &DirEntry) -> bool {
-            entry
-                .file_name()
-                .to_str()
-                .map(|s| s.starts_with("."))
-                .unwrap_or(false)
-        }
-
-        fn sort_by_name_files_before_dirs(a: &DirEntry, b: &DirEntry) -> Ordering {
-            if a.path().is_dir() && b.path().is_file() {
-                Ordering::Greater
-            } else if a.path().is_file() && b.path().is_dir() {
-                Ordering::Less
-            } else {
-                a.file_name().cmp(b.file_name())
-            }
-        }
-
         Ok(WalkDir::new(path)
-            .sort_by(sort_by_name_files_before_dirs)
+            .sort_by(crate::utils::file::sort_by_name_files_before_dirs)
             .into_iter()
-            .filter_entry(|e| !is_hidden(e))
+            .filter_entry(|e| !crate::utils::file::is_hidden(e))
             .flat_map(|e| e.ok())
             .flat_map(|e| {
                 let e = e.path();
 
                 if e.is_file() {
+                    Some(e.strip_prefix(&self.root).unwrap().to_owned())
+                } else {
+                    None
+                }
+            })
+            .collect())
+    }
+
+    /// Lists all valid locations in the store.
+    ///
+    /// Locations may be either directories or files that represent a record.
+    pub(crate) fn list_locations(&self) -> miette::Result<Vec<PathBuf>> {
+        Ok(WalkDir::new(&self.root)
+            .sort_by(crate::utils::file::sort_by_name_files_before_dirs)
+            .into_iter()
+            .filter_entry(|e| !crate::utils::file::is_hidden(e))
+            .flat_map(|e| e.ok())
+            .flat_map(|e| {
+                let e = e.path();
+
+                if e.is_file() || e.is_dir() {
                     Some(e.strip_prefix(&self.root).unwrap().to_owned())
                 } else {
                     None

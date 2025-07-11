@@ -7,11 +7,11 @@ use std::path::{Path, PathBuf};
 #[derive(Debug, Parser)]
 pub(super) struct Command {
     /// Path to the source directory/record
-    #[arg(add = ArgValueCompleter::new(super::complete_secret))]
+    #[arg(add = ArgValueCompleter::new(super::complete_location))]
     source: PathBuf,
 
     /// Path to move the directory/record to
-    #[arg(add = ArgValueCompleter::new(super::complete_secret))]
+    #[arg(add = ArgValueCompleter::new(super::complete_location))]
     destination: PathBuf,
 }
 
