@@ -71,7 +71,7 @@ impl Store {
     pub(crate) fn edit_config_interactive(&self) -> miette::Result<bool> {
         Ok(
             crate::utils::git::git_operation(&self.root, "Edit SOPS config", || {
-                crate::utils::edit_file_interactive(self.root.join(SOPS_CONFIG_FILENAME))
+                crate::utils::file::edit_file_interactive(self.root.join(SOPS_CONFIG_FILENAME))
                     .wrap_err("Failed to edit SOPS config file")
             })
             .wrap_err("Failed to edit SOPS config file")?

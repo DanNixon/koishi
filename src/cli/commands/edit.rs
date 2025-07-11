@@ -7,7 +7,7 @@ use std::path::{Path, PathBuf};
 #[derive(Debug, Parser)]
 pub(super) struct Command {
     /// Path to a record
-    #[arg(add = ArgValueCompleter::new(super::complete_secret))]
+    #[arg(add = ArgValueCompleter::new(super::complete_record))]
     path: PathBuf,
 }
 

@@ -32,7 +32,7 @@ pub(super) struct Command {
     qr_unicode: bool,
 
     /// Path to a record
-    #[arg(add = ArgValueCompleter::new(super::complete_secret))]
+    #[arg(add = ArgValueCompleter::new(super::complete_record))]
     path: PathBuf,
 
     /// Part of the record to get

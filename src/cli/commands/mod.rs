@@ -17,7 +17,10 @@ use super::Run;
 use crate::secret_store::Store;
 use clap::Subcommand;
 use clap_complete::CompletionCandidate;
-use std::{ffi::OsStr, path::Path};
+use std::{
+    ffi::OsStr,
+    path::{Path, PathBuf},
+};
 
 #[allow(private_interfaces)]
 #[derive(Debug, Subcommand)]
@@ -68,7 +71,19 @@ impl Run for Command {
     }
 }
 
-fn complete_secret(current: &OsStr) -> Vec<CompletionCandidate> {
+fn complete_location(current: &OsStr) -> Vec<CompletionCandidate> {
+    let records = match shellexpand::path::full(super::DEFAULT_STORE_LOCATION) {
+        Ok(store_path) => match Store::open(&store_path) {
+            Ok(store) => store.list_locations().unwrap_or(Vec::default()),
+            Err(_) => Vec::default(),
+        },
+        Err(_) => Vec::default(),
+    };
+
+    do_complete(current, records)
+}
+
+fn complete_record(current: &OsStr) -> Vec<CompletionCandidate> {
     let records = match shellexpand::path::full(super::DEFAULT_STORE_LOCATION) {
         Ok(store_path) => match Store::open(&store_path) {
             Ok(store) => store.list_records(None).unwrap_or(Vec::default()),
@@ -77,9 +92,13 @@ fn complete_secret(current: &OsStr) -> Vec<CompletionCandidate> {
         Err(_) => Vec::default(),
     };
 
+    do_complete(current, records)
+}
+
+fn do_complete(current: &OsStr, options: Vec<PathBuf>) -> Vec<CompletionCandidate> {
     let current = current.to_str().unwrap_or("");
 
-    records
+    options
         .into_iter()
         .filter(|s| s.display().to_string().starts_with(current))
         .map(CompletionCandidate::new)
