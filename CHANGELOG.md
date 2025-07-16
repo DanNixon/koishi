@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.2](https://github.com/DanNixon/koishi/compare/v0.1.1...v0.1.2) - 2025-07-16
+
+### Added
+
+- cli completion for store locations
+- allow `rm` command to work on both records and directories
+- allow `mv` command to work on both records and directories
+- choose characters from a secret
+
+### Fixed
+
+- fix failing style/formtting check
+
+### Other
+
+- remove old notes from `set.rs`
+- `StoreLocation` generation from a `Store`
+
 ## [0.1.1](https://github.com/DanNixon/koishi/compare/v0.1.0...v0.1.1) - 2025-07-07
 
 ### Added
