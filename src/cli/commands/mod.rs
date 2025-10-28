@@ -170,29 +170,13 @@ fn extract_path_from_line(comp_line: &str) -> Option<PathBuf> {
     let subcommand_idx = parts.iter().position(|&s| s == "get" || s == "set")?;
     
     // The path should be the next non-option argument after the subcommand
-    // We need to skip both options and their values
-    let mut skip_next = false;
+    // Simple heuristic: look for the first argument that doesn't start with '-'
+    // This works because during shell completion, the user would have already typed
+    // the path before starting to type the selector
     for part in parts.iter().skip(subcommand_idx + 1) {
-        if skip_next {
-            // This is a value for a previous option, skip it
-            skip_next = false;
-            continue;
+        if !part.starts_with('-') {
+            return Some(PathBuf::from(part));
         }
-        
-        if part.starts_with('-') {
-            // This is an option
-            // Check if it's an option that takes a value (anything except flags)
-            // Common flags for get: -c/--copy, --qr, --qr_ascii, --qr_unicode
-            // These are the only flags that don't take values
-            if !matches!(*part, "-c" | "--copy" | "--qr" | "--qr-ascii" | "--qr_ascii" | "--qr-unicode" | "--qr_unicode") {
-                // This option likely takes a value, skip the next part too
-                skip_next = true;
-            }
-            continue;
-        }
-        
-        // Found the first non-option argument
-        return Some(PathBuf::from(part));
     }
     
     None
