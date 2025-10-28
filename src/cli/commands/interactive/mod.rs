@@ -183,7 +183,7 @@ fn lookup_chars_from_secret(secret: Zeroizing<String>) -> miette::Result<()> {
 
         match secret.get(idx..idx + 1) {
             Some(ss) => {
-                println!("Character at index {}: {}", idx, ss);
+                println!("Character at index {idx}: {ss}");
             }
             None => {
                 return Err(miette::miette!(

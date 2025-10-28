@@ -269,7 +269,7 @@ fn format_selector(selector: Option<&str>) -> Option<String> {
                     if part.is_empty() {
                         None
                     } else {
-                        Some(format!("[\"{}\"]", part))
+                        Some(format!("[\"{part}\"]"))
                     }
                 })
                 .collect::<Vec<_>>()
