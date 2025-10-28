@@ -36,6 +36,7 @@ pub(super) struct Command {
     path: PathBuf,
 
     /// Part of the record to get
+    #[arg(add = ArgValueCompleter::new(super::complete_selector))]
     selector: Option<String>,
 }
 
