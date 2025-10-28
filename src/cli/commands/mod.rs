@@ -100,9 +100,13 @@ fn complete_selector(current: &OsStr) -> Vec<CompletionCandidate> {
     // We parse COMP_LINE to get the previously entered path argument
     let path = extract_path_from_cmdline();
     
+    // Try to extract custom store location from command line, or use default
+    let store_location = extract_store_from_cmdline()
+        .unwrap_or_else(|| PathBuf::from(super::DEFAULT_STORE_LOCATION));
+    
     let attributes = match path {
         Some(path) => {
-            match shellexpand::path::full(super::DEFAULT_STORE_LOCATION) {
+            match shellexpand::path::full(&store_location) {
                 Ok(store_path) => match Store::open(&store_path) {
                     Ok(store) => match store.get_record(&path) {
                         Ok(record) => record.list_attributes().unwrap_or(Vec::default()),
@@ -124,9 +128,35 @@ fn complete_selector(current: &OsStr) -> Vec<CompletionCandidate> {
         .collect()
 }
 
+fn extract_store_from_cmdline() -> Option<PathBuf> {
+    let comp_line = std::env::var("COMP_LINE").ok()?;
+    extract_store_from_line(&comp_line)
+}
+
+fn extract_store_from_line(comp_line: &str) -> Option<PathBuf> {
+    let parts: Vec<&str> = comp_line.split_whitespace().collect();
+    
+    // Look for -s or --store options
+    for (i, part) in parts.iter().enumerate() {
+        if *part == "-s" || *part == "--store" {
+            // The next part should be the store path
+            if i + 1 < parts.len() {
+                return Some(PathBuf::from(parts[i + 1]));
+            }
+        } else if part.starts_with("--store=") {
+            // Handle --store=/path/to/store
+            return Some(PathBuf::from(part.trim_start_matches("--store=")));
+        }
+    }
+    
+    None
+}
+
 fn extract_path_from_cmdline() -> Option<PathBuf> {
     // Try to get the command line from environment variables set by the shell
-    // COMP_LINE is set by bash, and similar variables exist for other shells
+    // COMP_LINE is set by bash during completion
+    // Note: This currently only supports bash. Other shells like zsh and fish have
+    // different completion systems, but clap_complete handles the translation
     let comp_line = std::env::var("COMP_LINE").ok()?;
     extract_path_from_line(&comp_line)
 }
@@ -140,11 +170,29 @@ fn extract_path_from_line(comp_line: &str) -> Option<PathBuf> {
     let subcommand_idx = parts.iter().position(|&s| s == "get" || s == "set")?;
     
     // The path should be the next non-option argument after the subcommand
+    // We need to skip both options and their values
+    let mut skip_next = false;
     for part in parts.iter().skip(subcommand_idx + 1) {
-        // Skip options (arguments starting with -)
-        if !part.starts_with('-') {
-            return Some(PathBuf::from(part));
+        if skip_next {
+            // This is a value for a previous option, skip it
+            skip_next = false;
+            continue;
         }
+        
+        if part.starts_with('-') {
+            // This is an option
+            // Check if it's an option that takes a value (anything except flags)
+            // Common flags for get: -c/--copy, --qr, --qr_ascii, --qr_unicode
+            // These are the only flags that don't take values
+            if !matches!(*part, "-c" | "--copy" | "--qr" | "--qr-ascii" | "--qr_ascii" | "--qr-unicode" | "--qr_unicode") {
+                // This option likely takes a value, skip the next part too
+                skip_next = true;
+            }
+            continue;
+        }
+        
+        // Found the first non-option argument
+        return Some(PathBuf::from(part));
     }
     
     None
@@ -187,6 +235,19 @@ mod tests {
         let result = extract_path_from_line("koishi -s /path/to/store get mypath");
         assert_eq!(result, Some(PathBuf::from("mypath")));
     }
+    
+    #[test]
+    fn test_extract_path_from_line_with_store_option_after_subcommand() {
+        // Even though this is unusual, we should handle options after the subcommand
+        let result = extract_path_from_line("koishi get -c mypath");
+        assert_eq!(result, Some(PathBuf::from("mypath")));
+    }
+    
+    #[test]
+    fn test_extract_path_from_line_with_long_option() {
+        let result = extract_path_from_line("koishi get --copy mypath");
+        assert_eq!(result, Some(PathBuf::from("mypath")));
+    }
 
     #[test]
     fn test_extract_path_from_line_no_subcommand() {
@@ -197,6 +258,30 @@ mod tests {
     #[test]
     fn test_extract_path_from_line_no_path() {
         let result = extract_path_from_line("koishi get");
+        assert_eq!(result, None);
+    }
+    
+    #[test]
+    fn test_extract_store_from_line_short_option() {
+        let result = extract_store_from_line("koishi -s /custom/store get mypath");
+        assert_eq!(result, Some(PathBuf::from("/custom/store")));
+    }
+    
+    #[test]
+    fn test_extract_store_from_line_long_option() {
+        let result = extract_store_from_line("koishi --store /custom/store get mypath");
+        assert_eq!(result, Some(PathBuf::from("/custom/store")));
+    }
+    
+    #[test]
+    fn test_extract_store_from_line_long_option_with_equals() {
+        let result = extract_store_from_line("koishi --store=/custom/store get mypath");
+        assert_eq!(result, Some(PathBuf::from("/custom/store")));
+    }
+    
+    #[test]
+    fn test_extract_store_from_line_no_store() {
+        let result = extract_store_from_line("koishi get mypath");
         assert_eq!(result, None);
     }
 }
