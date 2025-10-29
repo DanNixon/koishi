@@ -72,7 +72,7 @@ impl Run for Command {
 }
 
 fn complete_location(current: &OsStr) -> Vec<CompletionCandidate> {
-    let records = match shellexpand::path::full(super::DEFAULT_STORE_LOCATION) {
+    let records = match super::get_store_location() {
         Ok(store_path) => match Store::open(&store_path) {
             Ok(store) => store.list_locations().unwrap_or(Vec::default()),
             Err(_) => Vec::default(),
@@ -84,7 +84,7 @@ fn complete_location(current: &OsStr) -> Vec<CompletionCandidate> {
 }
 
 fn complete_record(current: &OsStr) -> Vec<CompletionCandidate> {
-    let records = match shellexpand::path::full(super::DEFAULT_STORE_LOCATION) {
+    let records = match super::get_store_location() {
         Ok(store_path) => match Store::open(&store_path) {
             Ok(store) => store.list_records(None).unwrap_or(Vec::default()),
             Err(_) => Vec::default(),
