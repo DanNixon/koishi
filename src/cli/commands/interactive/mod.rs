@@ -1,5 +1,3 @@
-mod auto_transforms;
-
 use crate::{
     cli::Run,
     secret_store::{Record, Store},
@@ -55,7 +53,7 @@ fn do_query(record: &Record, attribute: String, lookup: LookupMode) -> miette::R
     let secret = record.decrypt_and_extract(Some(&attribute))?;
 
     // Apply any automatic transformations
-    let mut secret = auto_transforms::process(secret)?;
+    let mut secret = crate::auto_transforms::process(secret)?;
 
     // Output it according to the specified mode
     let wait_for_user_ready = match lookup {

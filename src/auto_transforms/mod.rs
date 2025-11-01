@@ -2,7 +2,7 @@ mod otpauth_url;
 
 use zeroize::Zeroizing;
 
-pub(super) fn process(data: Zeroizing<Vec<u8>>) -> miette::Result<Zeroizing<Vec<u8>>> {
+pub(crate) fn process(data: Zeroizing<Vec<u8>>) -> miette::Result<Zeroizing<Vec<u8>>> {
     if otpauth_url::OtpauthUrl::applies(&data)? {
         otpauth_url::OtpauthUrl::apply(data)
     } else {
