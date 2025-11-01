@@ -1,4 +1,4 @@
-mod auto_transforms;
+pub(in crate::cli::commands) mod auto_transforms;
 
 use crate::{
     cli::Run,

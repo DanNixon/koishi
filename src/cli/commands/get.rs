@@ -31,6 +31,10 @@ pub(super) struct Command {
     #[clap(long, conflicts_with_all = &["copy", "qr", "qr_ascii"])]
     qr_unicode: bool,
 
+    /// Return the raw value without applying auto transforms
+    #[clap(long)]
+    raw: bool,
+
     /// Path to a record
     #[arg(add = ArgValueCompleter::new(super::complete_record))]
     path: PathBuf,
@@ -46,6 +50,11 @@ impl Run for Command {
         let record = store.get_record(&self.path)?;
 
         let mut secret = record.decrypt_and_extract(self.selector.as_deref())?;
+
+        // Apply auto transforms unless --raw flag is set
+        if !self.raw {
+            secret = super::interactive::auto_transforms::process(secret)?;
+        }
 
         if self.copy {
             crate::utils::clipboard::copy(secret)?;
