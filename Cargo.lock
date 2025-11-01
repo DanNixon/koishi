@@ -1693,7 +1693,7 @@ dependencies = [
 
 [[package]]
 name = "koishi-pw"
-version = "0.1.2"
+version = "0.2.0"
 dependencies = [
  "assert_cmd",
  "clap",

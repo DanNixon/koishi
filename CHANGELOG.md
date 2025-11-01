@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0](https://github.com/DanNixon/koishi/compare/v0.1.2...v0.2.0) - 2025-11-01
+
+### Added
+
+- [**breaking**] auto transforms for `get` command
+- [**breaking**] only allow setting store location via env var ([#24](https://github.com/DanNixon/koishi/pull/24))
+
+### Other
+
+- *(deps)* bump the cargo-dependencies group across 1 directory with 6 updates ([#23](https://github.com/DanNixon/koishi/pull/23))
+- *(deps)* update cargo dependencies
+- *(deps)* bump actions/checkout from 4 to 5
+- *(deps)* bump the cargo-dependencies group with 7 updates
+
 ## [0.1.2](https://github.com/DanNixon/koishi/compare/v0.1.1...v0.1.2) - 2025-07-16
 
 ### Added
