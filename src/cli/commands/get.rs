@@ -53,7 +53,7 @@ impl Run for Command {
 
         // Apply auto transforms unless --raw flag is set
         if !self.raw {
-            secret = super::interactive::auto_transforms::process(secret)?;
+            secret = crate::auto_transforms::process(secret)?;
         }
 
         if self.copy {

@@ -1,3 +1,4 @@
+mod auto_transforms;
 mod cli;
 mod secret_store;
 mod utils;
