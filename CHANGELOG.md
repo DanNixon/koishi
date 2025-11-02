@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1](https://github.com/DanNixon/koishi/compare/v0.2.0...v0.2.1) - 2025-11-02
+
+### Other
+
+- *(deps)* bump the cargo-dependencies group with 3 updates ([#26](https://github.com/DanNixon/koishi/pull/26))
+
 ## [0.2.0](https://github.com/DanNixon/koishi/compare/v0.1.2...v0.2.0) - 2025-11-01
 
 ### Added
