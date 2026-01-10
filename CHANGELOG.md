@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1](https://github.com/DanNixon/koishi/compare/v0.2.0...v0.2.1) - 2026-01-10
+
+### Added
+
+- add `--yes` flag to `updatekeys`
+
+### Fixed
+
+- be consistent with clap derive syntax
+
+### Other
+
+- set Dependabot to quarterly
+- replace devenv.sh with Nix flake
+- *(deps)* bump the cargo-dependencies group with 5 updates ([#32](https://github.com/DanNixon/koishi/pull/32))
+- *(deps)* bump the cargo-dependencies group with 4 updates ([#29](https://github.com/DanNixon/koishi/pull/29))
+- disable persist-credentials on release jobs
+- update devenv inputs
+- *(deps)* bump actions/checkout from 5 to 6 ([#28](https://github.com/DanNixon/koishi/pull/28))
+- *(deps)* bump the cargo-dependencies group with 3 updates ([#26](https://github.com/DanNixon/koishi/pull/26))
+
 ## [0.2.0](https://github.com/DanNixon/koishi/compare/v0.1.2...v0.2.0) - 2025-11-01
 
 ### Added
