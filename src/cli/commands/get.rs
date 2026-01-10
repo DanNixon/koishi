@@ -16,23 +16,23 @@ use std::{
 #[derive(Debug, Parser)]
 pub(super) struct Command {
     /// Copy the secret to the clipboard
-    #[clap(short, long, conflicts_with_all = &["qr", "qr_ascii", "qr_unicode"])]
+    #[arg(short, long, conflicts_with_all = &["qr", "qr_ascii", "qr_unicode"])]
     copy: bool,
 
     /// Output the secret as a QR code in a PNG image
-    #[clap(long, conflicts_with_all = &["copy", "qr_ascii", "qr_unicode"])]
+    #[arg(long, conflicts_with_all = &["copy", "qr_ascii", "qr_unicode"])]
     qr: bool,
 
     /// Output the secret as a QR code as text using ASCII characters
-    #[clap(long, conflicts_with_all = &["copy", "qr", "qr_unicode"])]
+    #[arg(long, conflicts_with_all = &["copy", "qr", "qr_unicode"])]
     qr_ascii: bool,
 
     /// Output the secret as a QR code as nicer text using unicode characters
-    #[clap(long, conflicts_with_all = &["copy", "qr", "qr_ascii"])]
+    #[arg(long, conflicts_with_all = &["copy", "qr", "qr_ascii"])]
     qr_unicode: bool,
 
     /// Return the raw value without applying auto transforms
-    #[clap(long)]
+    #[arg(long)]
     raw: bool,
 
     /// Path to a record
