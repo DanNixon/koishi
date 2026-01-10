@@ -139,12 +139,16 @@ pub(crate) fn set(
     }
 }
 
-pub(crate) fn update_keys(workdir: &Path, file: &Path) -> miette::Result<()> {
+pub(crate) fn update_keys(workdir: &Path, file: &Path, yes: bool) -> miette::Result<()> {
     let mut command = Command::new("sops");
 
+    let _ = command.current_dir(workdir).arg("updatekeys");
+
+    if yes {
+        let _ = command.arg("--yes");
+    }
+
     let result = command
-        .current_dir(workdir)
-        .arg("updatekeys")
         .arg(file)
         .status()
         .into_diagnostic()
