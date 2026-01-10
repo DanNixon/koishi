@@ -7,6 +7,10 @@ use std::path::{Path, PathBuf};
 /// Essentially a batch equivalent of `sops updatekeys`.
 #[derive(Debug, Parser)]
 pub(super) struct Command {
+    /// Pre-approve all changes and run non-interactively
+    #[arg(short, long)]
+    yes: bool,
+
     /// Path under which to rekey records
     path: Option<PathBuf>,
 }
@@ -26,7 +30,7 @@ impl Run for Command {
             },
             || {
                 for record in &records {
-                    crate::utils::sops::update_keys(store.root(), record)?;
+                    crate::utils::sops::update_keys(store.root(), record, self.yes)?;
                 }
                 Ok(())
             },
