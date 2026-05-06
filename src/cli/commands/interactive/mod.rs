@@ -134,7 +134,7 @@ struct RecordLocationItem {
 }
 
 impl SkimItem for RecordLocationItem {
-    fn text(&self) -> Cow<str> {
+    fn text(&self) -> Cow<'_, str> {
         Cow::Owned(format!("{}", self.inner.display()))
     }
 }
@@ -149,7 +149,7 @@ enum LookupMode {
 }
 
 impl SkimItem for LookupMode {
-    fn text(&self) -> Cow<str> {
+    fn text(&self) -> Cow<'_, str> {
         Cow::Borrowed(match self {
             Self::Copy => "Copy to clipboard",
             Self::QrCodeUnicode => "Generate Unicode QR code",
