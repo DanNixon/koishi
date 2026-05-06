@@ -13,7 +13,7 @@ impl Store {
     /// Performs validation that it can exist and creates the required directories, but otherwise
     /// does not write anything to disk.
     /// Writing must be performed using the returned `Record`.
-    pub(crate) fn create_record(&self, path: &Path) -> miette::Result<Record> {
+    pub(crate) fn create_record(&self, path: &Path) -> miette::Result<Record<'_>> {
         let location = self.location(path);
 
         if location.exists() {
@@ -78,7 +78,7 @@ impl Store {
     }
 
     /// Get a record given a path in the store.
-    pub(crate) fn get_record(&self, path: &Path) -> miette::Result<Record> {
+    pub(crate) fn get_record(&self, path: &Path) -> miette::Result<Record<'_>> {
         let exact_location = self.location(path);
 
         if exact_location.exists() {
@@ -97,7 +97,7 @@ impl Store {
     ///
     /// Will not fail if the path in the store does not exist.
     /// Instead a `Record` will be returned that simply does not exist.
-    pub(crate) fn get_record_unchecked(&self, path: &Path) -> miette::Result<Record> {
+    pub(crate) fn get_record_unchecked(&self, path: &Path) -> miette::Result<Record<'_>> {
         let exact_location = self.location(path);
 
         Ok(Record {
@@ -246,10 +246,10 @@ impl<'a> Record<'a> {
         // Try to parse the encrypted SOPS file as YAML
         if let Ok(yaml) = saphyr::Yaml::load_from_str(&content) {
             // Assuming that the file has a single YAML document
-            if let Some(yaml) = yaml.first() {
-                if let Some(map) = yaml.as_mapping() {
-                    return Ok(handle_yaml_mapping(map));
-                }
+            if let Some(yaml) = yaml.first()
+                && let Some(map) = yaml.as_mapping()
+            {
+                return Ok(handle_yaml_mapping(map));
             }
         }
 

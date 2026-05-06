@@ -62,7 +62,7 @@ impl Store {
         &self.root
     }
 
-    pub(crate) fn location(&self, path: &Path) -> StoreLocation {
+    pub(crate) fn location(&self, path: &Path) -> StoreLocation<'_> {
         StoreLocation::from_path(&self.root, path)
     }
 
