@@ -15,7 +15,7 @@ path = "./src/main.rs"
 [dependencies]
 clap = { version = "4.5.60", features = ["cargo", "derive", "env", "string"] }
 clap_complete = { version = "4.6.0", features = ["unstable-dynamic"] }
-gix = { version = "0.83.0", default-features = false, features = ["sha1"] }
+gix = { version = "0.85.0", default-features = false, features = ["sha1"] }
 image = { version = "0.25.10", default-features = false, features = ["png"] }
 inquire = { version = "0.9.4", default-features = false, features = ["crossterm"] }
 miette = { version = "7.6.0", features = ["fancy"] }
@@ -23,7 +23,7 @@ qrcode = "0.14.1"
 saphyr = "0.0.6"
 serde_json = "1.0.149"
 shellexpand = { version = "3.1.2", features = ["path"] }
-skim = "0.20.5"
+skim = "4.7.0"
 strum = "0.28.0"
 strum_macros = "0.28.0"
 totp-rs = { version = "5.7.1", features = ["zeroize", "otpauth"] }
