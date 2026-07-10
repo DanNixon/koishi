@@ -5,18 +5,22 @@ db-urls = [ "https://github.com/rustsec/advisory-db" ]
 ignore = [
   "RUSTSEC-2026-0194",
   "RUSTSEC-2026-0195",
+  "RUSTSEC-2024-0436",
 ]
 
 [licenses]
 version = 2
 allow = [
   "MIT",
+  "BSD-2-Clause",
   "BSD-3-Clause",
   "Apache-2.0",
   "MPL-2.0",
   "Unicode-3.0",
   "Zlib",
   "ISC",
+  "0BSD",
+  "NCSA",
 ]
 
 [bans]

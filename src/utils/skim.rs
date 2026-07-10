@@ -9,8 +9,8 @@ pub(crate) fn pick_single_item<T: Clone + 'static>(
         .build()
         .into_diagnostic()?;
 
-    let skim_output = Skim::run_with(&options, Some(item_rx))
-        .ok_or_else(|| miette!("Failed to run fuzzy picker"))?;
+    let skim_output = Skim::run_with(options, Some(item_rx))
+        .map_err(|_| miette!("Failed to run fuzzy picker"))?;
 
     if skim_output.is_abort {
         return Ok(None);
