@@ -99,9 +99,9 @@ fn do_query(record: &Record, attribute: String, lookup: LookupMode) -> miette::R
 fn pick_record(records: &[PathBuf]) -> miette::Result<Option<PathBuf>> {
     let (item_tx, item_rx): (SkimItemSender, SkimItemReceiver) = skim::prelude::unbounded();
     for record in records {
-        let _ = item_tx.send(Arc::new(RecordLocationItem {
+        let _ = item_tx.send(vec![Arc::new(RecordLocationItem {
             inner: record.clone(),
-        }));
+        })]);
     }
     drop(item_tx);
 
@@ -111,7 +111,7 @@ fn pick_record(records: &[PathBuf]) -> miette::Result<Option<PathBuf>> {
 fn pick_attribute(attributes: Vec<String>) -> miette::Result<Option<String>> {
     let (item_tx, item_rx): (SkimItemSender, SkimItemReceiver) = skim::prelude::unbounded();
     for attribute in attributes {
-        let _ = item_tx.send(Arc::new(attribute));
+        let _ = item_tx.send(vec![Arc::new(attribute)]);
     }
     drop(item_tx);
 
@@ -121,7 +121,7 @@ fn pick_attribute(attributes: Vec<String>) -> miette::Result<Option<String>> {
 fn pick_lookup_mode() -> miette::Result<Option<LookupMode>> {
     let (item_tx, item_rx): (SkimItemSender, SkimItemReceiver) = skim::prelude::unbounded();
     for mode in LookupMode::iter() {
-        let _ = item_tx.send(Arc::new(mode));
+        let _ = item_tx.send(vec![Arc::new(mode)]);
     }
     drop(item_tx);
 
