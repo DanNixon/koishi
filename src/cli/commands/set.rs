@@ -12,10 +12,11 @@ use zeroize::Zeroizing;
 #[derive(Debug, Parser)]
 pub(super) struct Command {
     /// Path to a record
-    #[arg(add = ArgValueCompleter::new(super::complete_record))]
-    path: PathBuf,
+    #[arg(add = ArgValueCompleter::new(super::complete_record_path))]
+    pub(super) path: PathBuf,
 
     /// Part of the record to set
+    #[arg(add = ArgValueCompleter::new(super::complete_record_selector))]
     selector: Option<String>,
 }
 

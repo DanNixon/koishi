@@ -15,7 +15,7 @@ mod update_keys;
 
 use super::Run;
 use crate::secret_store::Store;
-use clap::Subcommand;
+use clap::{Parser, Subcommand, builder::StyledStr};
 use clap_complete::CompletionCandidate;
 use std::{
     ffi::OsStr,
@@ -80,10 +80,10 @@ fn complete_location(current: &OsStr) -> Vec<CompletionCandidate> {
         Err(_) => Vec::default(),
     };
 
-    do_complete(current, records)
+    do_complete_paths(current, records)
 }
 
-fn complete_record(current: &OsStr) -> Vec<CompletionCandidate> {
+fn complete_record_path(current: &OsStr) -> Vec<CompletionCandidate> {
     let records = match super::get_store_location() {
         Ok(store_path) => match Store::open(&store_path) {
             Ok(store) => store.list_records(None).unwrap_or(Vec::default()),
@@ -92,15 +92,67 @@ fn complete_record(current: &OsStr) -> Vec<CompletionCandidate> {
         Err(_) => Vec::default(),
     };
 
-    do_complete(current, records)
+    do_complete_paths(current, records)
 }
 
-fn do_complete(current: &OsStr, options: Vec<PathBuf>) -> Vec<CompletionCandidate> {
+fn complete_record_selector(current: &OsStr) -> Vec<CompletionCandidate> {
+    let args = std::env::args_os().skip(2);
+    let args = match super::Cli::try_parse_from(args) {
+        Ok(args) => args,
+        Err(_) => return Vec::default(),
+    };
+
+    let record_path = match args.command {
+        Command::Set(command) => command.path,
+        Command::Get(command) => command.path,
+        _ => return Vec::default(),
+    };
+
+    let store_path = match super::get_store_location() {
+        Ok(store_path) => store_path,
+        Err(_) => return Vec::default(),
+    };
+
+    complete_selector_for_record(current, &store_path, &record_path)
+}
+
+fn complete_selector_for_record(
+    current: &OsStr,
+    store_path: &Path,
+    record_path: &Path,
+) -> Vec<CompletionCandidate> {
+    let selectors = match Store::open(store_path) {
+        Ok(store) => match store.get_record(record_path) {
+            Ok(record) => record.list_attributes().unwrap_or(Vec::default()),
+            Err(_) => Vec::default(),
+        },
+        Err(_) => Vec::default(),
+    };
+
+    do_complete_strings(current, selectors, Some("Entry in record".into()))
+}
+
+fn do_complete_paths(current: &OsStr, options: Vec<PathBuf>) -> Vec<CompletionCandidate> {
+    do_complete_strings(
+        current,
+        options
+            .into_iter()
+            .map(|path| path.display().to_string())
+            .collect(),
+        None,
+    )
+}
+
+fn do_complete_strings(
+    current: &OsStr,
+    options: Vec<String>,
+    help: Option<StyledStr>,
+) -> Vec<CompletionCandidate> {
     let current = current.to_str().unwrap_or("");
 
     options
         .into_iter()
-        .filter(|s| s.display().to_string().starts_with(current))
-        .map(CompletionCandidate::new)
+        .filter(|option| option.starts_with(current))
+        .map(|s| CompletionCandidate::new(s).help(help.clone()))
         .collect()
 }
