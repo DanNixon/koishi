@@ -36,10 +36,11 @@ pub(super) struct Command {
     raw: bool,
 
     /// Path to a record
-    #[arg(add = ArgValueCompleter::new(super::complete_record))]
-    path: PathBuf,
+    #[arg(add = ArgValueCompleter::new(super::complete_record_path))]
+    pub(super) path: PathBuf,
 
     /// Part of the record to get
+    #[arg(add = ArgValueCompleter::new(super::complete_record_selector))]
     selector: Option<String>,
 }
 

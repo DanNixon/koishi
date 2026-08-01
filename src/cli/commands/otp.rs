@@ -11,7 +11,7 @@ pub(super) struct Command {
     otp_selector: String,
 
     /// Path to a record
-    #[arg(add = ArgValueCompleter::new(super::complete_record))]
+    #[arg(add = ArgValueCompleter::new(super::complete_record_path))]
     path: PathBuf,
 }
 
