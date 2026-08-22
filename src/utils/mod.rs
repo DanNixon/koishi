@@ -2,7 +2,6 @@ pub(crate) mod clipboard;
 pub(crate) mod file;
 pub(crate) mod git;
 pub(crate) mod qr;
-pub(crate) mod skim;
 pub(crate) mod sops;
 #[cfg(test)]
 pub(crate) mod test;

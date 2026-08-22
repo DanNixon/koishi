@@ -4,7 +4,6 @@ mod edit;
 mod get;
 mod git;
 mod init;
-mod interactive;
 mod list;
 mod r#move;
 mod otp;
@@ -43,9 +42,6 @@ pub(super) enum Command {
     #[clap(name = "updatekeys")]
     UpdateKeys(update_keys::Command),
 
-    #[clap(alias = "i")]
-    Interactive(interactive::Command),
-
     Git(git::Command),
     Sops(sops::Command),
 }
@@ -64,7 +60,6 @@ impl Run for Command {
             Command::Move(cmd) => cmd.run(store_path),
             Command::Delete(cmd) => cmd.run(store_path),
             Command::UpdateKeys(cmd) => cmd.run(store_path),
-            Command::Interactive(cmd) => cmd.run(store_path),
             Command::Git(cmd) => cmd.run(store_path),
             Command::Sops(cmd) => cmd.run(store_path),
         }

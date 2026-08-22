@@ -1,5 +1,4 @@
 mod record;
-pub(crate) use record::Record;
 
 use crate::utils::git::GitOperationResult;
 use miette::{Context, IntoDiagnostic, miette};
