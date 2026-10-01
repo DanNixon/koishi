@@ -7,7 +7,7 @@ pub(crate) mod sops;
 pub(crate) mod test;
 
 use miette::{Context, IntoDiagnostic};
-use totp_rs::TOTP;
+use totp_rs::Totp;
 use zeroize::Zeroizing;
 
 pub(crate) fn bytes_to_string(bytes: Zeroizing<Vec<u8>>) -> miette::Result<Zeroizing<String>> {
@@ -21,6 +21,6 @@ pub(crate) fn bytes_to_string(bytes: Zeroizing<Vec<u8>>) -> miette::Result<Zeroi
 }
 
 pub(crate) fn totp_from_otpauth(otpauth: Zeroizing<String>) -> miette::Result<Zeroizing<String>> {
-    let totp = TOTP::from_url_unchecked(otpauth).into_diagnostic()?;
-    Ok(Zeroizing::new(totp.generate_current().into_diagnostic()?))
+    let totp = Totp::from_url_unchecked(otpauth).into_diagnostic()?;
+    Ok(Zeroizing::new(totp.generate_current().to_string()))
 }
