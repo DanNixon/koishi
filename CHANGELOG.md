@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.1](https://github.com/DanNixon/koishi/compare/v0.3.0...v0.3.1) - 2026-10-03
+
+### Other
+
+- *(deps)* bump the cargo-dependencies group with 7 updates
+- *(deps)* bump DeterminateSystems/nix-installer-action from 22 to 23
+- update Rust version
+- update Flake inputs
+
 ## [0.3.0](https://github.com/DanNixon/koishi/compare/v0.2.2...v0.3.0) - 2026-08-23
 
 ### Added
